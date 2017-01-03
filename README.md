@@ -37,11 +37,11 @@ comment on column GOODS.GMT_CREATE is
   ```
   + 订单表
   ```SQL
-  drop table "ORDER" cascade constraints;
+  drop table "ORDERS" cascade constraints;
 /*==============================================================*/
-/* Table: "ORDER"                                               */
+/* Table: "ORDERS"                                               */
 /*==============================================================*/
-create table "ORDER" 
+create table "ORDERS" 
 (
    ID                   NUMBER               not null,
    ORDER_NO             VARCHAR2(64)         not null,
@@ -51,24 +51,24 @@ create table "ORDER"
    TOTAL_AMOUNT         NUMBER(18)           not null,
    GMT_UPDATE           DATE                 not null,
    GMT_CREATE           DATE,
-   constraint PK_ORDER primary key (ID)
+   constraint PK_ORDERS primary key (ID)
 );
-comment on table "ORDER" is
+comment on table "ORDERS" is
 '订单表';
-comment on column "ORDER".ID is
+comment on column "ORDERS".ID is
 '主键，自增';
-comment on column "ORDER".ORDER_NO is
+comment on column "ORDERS".ORDER_NO is
 '订单编号';
-comment on column "ORDER".GOODS_ID is
+comment on column "ORDERS".GOODS_ID is
 '外键，商品编号';
-comment on column "ORDER".GOODS_NAME is
+comment on column "ORDERS".GOODS_NAME is
 '商品名称';
-comment on column "ORDER".BUYER_ID is
+comment on column "ORDERS".BUYER_ID is
 '购买人ID';
-comment on column "ORDER".TOTAL_AMOUNT is
+comment on column "ORDERS".TOTAL_AMOUNT is
 '商品总价';
-comment on column "ORDER".GMT_UPDATE is
+comment on column "ORDERS".GMT_UPDATE is
 '修改时间';
-comment on column "ORDER".GMT_CREATE is
+comment on column "ORDERS".GMT_CREATE is
 '创建时间';
   ```

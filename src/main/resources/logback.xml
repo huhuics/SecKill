@@ -5,7 +5,7 @@
 	<substitutionProperty name="max.size" value="100MB" />
 	<substitutionProperty name="max.history" value="2" />
 	<jmxConfigurator />
-	
+
 	<!-- 控制台输出 -->
 	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
@@ -13,7 +13,7 @@
 			</pattern>
 		</layout>
 	</appender>
-	
+
 	<!-- 文件输出 -->
 	<appender name="file.log"
 		class="ch.qos.logback.core.rolling.RollingFileAppender"><!-- All Log Info -->
@@ -43,8 +43,31 @@
 		<appender-ref ref="file.log" />
 	</appender>
 
+	<!-- 异常信息输出 -->
+	<appender name="file.error"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${log.base}/${pro.name}_error.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${log.base}/${pro.name}_error_%d{yyyy-MM-dd}.%i.log.gz
+			</FileNamePattern>
+			<MaxHistory>${max.history}</MaxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${max.size}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%date [%thread] %-5level %logger{80} [%line]- %msg%n
+			</pattern>
+		</layout>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+	</appender>
+
 	<root level="INFO">
 		<appender-ref ref="stdout" />
 		<appender-ref ref="file.async" />
+		<appender-ref ref="file.error" />
 	</root>
 </configuration>
