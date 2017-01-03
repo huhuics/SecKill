@@ -9,13 +9,13 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 支付结果枚举
  * @author HuHui
- * @version $Id: PayResultEnum.java, v 0.1 2017年1月3日 下午9:01:28 HuHui Exp $
+ * @version $Id: TradeStatusEnum.java, v 0.1 2017年1月3日 下午9:01:28 HuHui Exp $
  */
-public enum PayResultEnum {
+public enum TradeStatusEnum {
 
-    SUCCESS("success", "支付成功"),
+    SUCCESS("success", "交易成功"),
 
-    FAILED("failed", "支付失败"),
+    FAILED("failed", "交易失败"),
 
     BUSY("busy", "系统繁忙"),
 
@@ -27,7 +27,7 @@ public enum PayResultEnum {
     /** 枚举值 */
     private String desc;
 
-    private PayResultEnum(String code, String desc) {
+    private TradeStatusEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }
@@ -41,8 +41,8 @@ public enum PayResultEnum {
      * @return     对应的枚举对象
 
      */
-    public static PayResultEnum getByCode(String code) {
-        for (PayResultEnum eachValue : PayResultEnum.values()) {
+    public static TradeStatusEnum getByCode(String code) {
+        for (TradeStatusEnum eachValue : TradeStatusEnum.values()) {
             if (StringUtils.equals(code, eachValue.getCode())) {
                 return eachValue;
             }

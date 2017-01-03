@@ -7,12 +7,14 @@
     <result column="GOODS_ID" jdbcType="DECIMAL" property="goodsId" />
     <result column="GOODS_NAME" jdbcType="VARCHAR" property="goodsName" />
     <result column="BUYER_ID" jdbcType="VARCHAR" property="buyerId" />
+    <result column="TRADE_STATUS" jdbcType="VARCHAR" property="tradeStatus" />
     <result column="TOTAL_AMOUNT" jdbcType="DECIMAL" property="totalAmount" />
     <result column="GMT_UPDATE" jdbcType="TIMESTAMP" property="gmtUpdate" />
     <result column="GMT_CREATE" jdbcType="TIMESTAMP" property="gmtCreate" />
   </resultMap>
   <sql id="Base_Column_List">
-    ID, ORDER_NO, GOODS_ID, GOODS_NAME, BUYER_ID, TOTAL_AMOUNT, GMT_UPDATE, GMT_CREATE
+    ID, ORDER_NO, GOODS_ID, GOODS_NAME, BUYER_ID, TRADE_STATUS, TOTAL_AMOUNT, GMT_UPDATE, 
+    GMT_CREATE
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -26,11 +28,13 @@
   </delete>
   <insert id="insert" parameterType="cn.seckill.domain.Orders">
     insert into ORDERS (ID, ORDER_NO, GOODS_ID, 
-      GOODS_NAME, BUYER_ID, TOTAL_AMOUNT, 
-      GMT_UPDATE, GMT_CREATE)
+      GOODS_NAME, BUYER_ID, TRADE_STATUS, 
+      TOTAL_AMOUNT, GMT_UPDATE, GMT_CREATE
+      )
     values (#{id,jdbcType=DECIMAL}, #{orderNo,jdbcType=VARCHAR}, #{goodsId,jdbcType=DECIMAL}, 
-      #{goodsName,jdbcType=VARCHAR}, #{buyerId,jdbcType=VARCHAR}, #{totalAmount,jdbcType=DECIMAL}, 
-      #{gmtUpdate,jdbcType=TIMESTAMP}, #{gmtCreate,jdbcType=TIMESTAMP})
+      #{goodsName,jdbcType=VARCHAR}, #{buyerId,jdbcType=VARCHAR}, #{tradeStatus,jdbcType=VARCHAR}, 
+      #{totalAmount,jdbcType=DECIMAL}, #{gmtUpdate,jdbcType=TIMESTAMP}, #{gmtCreate,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="cn.seckill.domain.Orders">
     insert into ORDERS
@@ -49,6 +53,9 @@
       </if>
       <if test="buyerId != null">
         BUYER_ID,
+      </if>
+      <if test="tradeStatus != null">
+        TRADE_STATUS,
       </if>
       <if test="totalAmount != null">
         TOTAL_AMOUNT,
@@ -76,6 +83,9 @@
       <if test="buyerId != null">
         #{buyerId,jdbcType=VARCHAR},
       </if>
+      <if test="tradeStatus != null">
+        #{tradeStatus,jdbcType=VARCHAR},
+      </if>
       <if test="totalAmount != null">
         #{totalAmount,jdbcType=DECIMAL},
       </if>
@@ -102,6 +112,9 @@
       <if test="buyerId != null">
         BUYER_ID = #{buyerId,jdbcType=VARCHAR},
       </if>
+      <if test="tradeStatus != null">
+        TRADE_STATUS = #{tradeStatus,jdbcType=VARCHAR},
+      </if>
       <if test="totalAmount != null">
         TOTAL_AMOUNT = #{totalAmount,jdbcType=DECIMAL},
       </if>
@@ -120,6 +133,7 @@
       GOODS_ID = #{goodsId,jdbcType=DECIMAL},
       GOODS_NAME = #{goodsName,jdbcType=VARCHAR},
       BUYER_ID = #{buyerId,jdbcType=VARCHAR},
+      TRADE_STATUS = #{tradeStatus,jdbcType=VARCHAR},
       TOTAL_AMOUNT = #{totalAmount,jdbcType=DECIMAL},
       GMT_UPDATE = #{gmtUpdate,jdbcType=TIMESTAMP},
       GMT_CREATE = #{gmtCreate,jdbcType=TIMESTAMP}

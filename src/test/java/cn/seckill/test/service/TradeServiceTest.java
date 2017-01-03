@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 import org.junit.Assert;
 import org.junit.Test;
 
-import cn.seckill.enums.PayResultEnum;
+import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.service.TradeService;
 import cn.seckill.test.base.BaseTest;
@@ -37,8 +37,8 @@ public class TradeServiceTest extends BaseTest {
         request.setBuyerId("106699001");
         request.setTotalAmount(new Money(166.6));
 
-        PayResultEnum ret = tradeService.pay(request);
+        TradeStatusEnum ret = tradeService.pay(request);
 
-        Assert.assertTrue(ret == PayResultEnum.SUCCESS);
+        Assert.assertTrue(ret == TradeStatusEnum.SUCCESS);
     }
 }

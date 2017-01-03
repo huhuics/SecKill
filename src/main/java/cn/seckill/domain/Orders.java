@@ -1,24 +1,31 @@
 package cn.seckill.domain;
 
-import cn.seckill.util.Money;
 import java.util.Date;
 
-public class Orders {
-    private Long id;
+import cn.seckill.util.Money;
 
-    private String orderNo;
+public class Orders extends BaseDomain {
 
-    private Long goodsId;
+    /**  */
+    private static final long serialVersionUID = 5234846941481653847L;
 
-    private String goodsName;
+    private Long              id;
 
-    private String buyerId;
+    private String            orderNo;
 
-    private Money totalAmount;
+    private Long              goodsId;
 
-    private Date gmtUpdate;
+    private String            goodsName;
 
-    private Date gmtCreate;
+    private String            buyerId;
+
+    private String            tradeStatus;
+
+    private Money             totalAmount;
+
+    private Date              gmtUpdate;
+
+    private Date              gmtCreate;
 
     public Long getId() {
         return id;
@@ -58,6 +65,14 @@ public class Orders {
 
     public void setBuyerId(String buyerId) {
         this.buyerId = buyerId == null ? null : buyerId.trim();
+    }
+
+    public String getTradeStatus() {
+        return tradeStatus;
+    }
+
+    public void setTradeStatus(String tradeStatus) {
+        this.tradeStatus = tradeStatus == null ? null : tradeStatus.trim();
     }
 
     public Money getTotalAmount() {

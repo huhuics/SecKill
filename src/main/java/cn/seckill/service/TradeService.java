@@ -4,7 +4,7 @@
  */
 package cn.seckill.service;
 
-import cn.seckill.enums.PayResultEnum;
+import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 
 /**
@@ -19,6 +19,6 @@ public interface TradeService {
      * @param request  支付请求参数
      * @return         支付结果枚举
      */
-    PayResultEnum pay(PayRequest request);
+    TradeStatusEnum pay(PayRequest request);
 
 }

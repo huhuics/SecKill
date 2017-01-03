@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 
-import cn.seckill.enums.PayResultEnum;
+import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.service.TradeService;
 import cn.seckill.util.LogUtil;
@@ -46,7 +46,7 @@ public class TradeController {
 
         LogUtil.info(logger, "收到支付请求");
 
-        String result = PayResultEnum.FAILED.getCode();
+        String result = TradeStatusEnum.FAILED.getCode();
 
         Map<String, String> paraMap = null;
 
@@ -56,12 +56,12 @@ public class TradeController {
             LogUtil.info(logger, "支付报文原始参数paraMap={0}", paraMap);
 
             PayRequest payRequest = buildPayRequest(paraMap);
-            PayResultEnum payRet = tradeService.pay(payRequest);
+            TradeStatusEnum payRet = tradeService.pay(payRequest);
 
             result = payRet.getCode();
         } catch (Exception e) {
             LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
-            result = PayResultEnum.FAILED.getCode();
+            result = TradeStatusEnum.FAILED.getCode();
         }
 
         return result;

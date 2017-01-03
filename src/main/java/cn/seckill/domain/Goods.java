@@ -1,22 +1,27 @@
 package cn.seckill.domain;
 
-import cn.seckill.util.Money;
 import java.util.Date;
 
-public class Goods {
-    private Long id;
+import cn.seckill.util.Money;
 
-    private String name;
+public class Goods extends BaseDomain {
 
-    private String description;
+    /**  */
+    private static final long serialVersionUID = 3552480290249514944L;
 
-    private Money totalAmount;
+    private Long              id;
 
-    private Long quantity;
+    private String            name;
 
-    private Date gmtUpdate;
+    private String            description;
 
-    private Date gmtCreate;
+    private Money             totalAmount;
+
+    private Long              quantity;
+
+    private Date              gmtUpdate;
+
+    private Date              gmtCreate;
 
     public Long getId() {
         return id;

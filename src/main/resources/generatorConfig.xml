@@ -34,11 +34,11 @@
             <property name="enableSubPackages" value="true"/>  
         </javaClientGenerator>  
 		
-		<table tableName="GOODS" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+		<!-- <table tableName="GOODS" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 			<columnOverride column="ID" javaType="java.lang.Long"></columnOverride>
 			<columnOverride column="TOTAL_AMOUNT" javaType="cn.seckill.util.Money"></columnOverride>
 			<columnOverride column="QUANTITY" javaType="java.lang.Long"></columnOverride>
-		</table>
+		</table> -->
 		
 		<table tableName="ORDERS" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 			<columnOverride column="ID" javaType="java.lang.Long"></columnOverride>

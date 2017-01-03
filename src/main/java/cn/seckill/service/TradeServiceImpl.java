@@ -17,7 +17,7 @@ import cn.seckill.dao.GoodsMapper;
 import cn.seckill.dao.OrdersMapper;
 import cn.seckill.domain.Goods;
 import cn.seckill.domain.Orders;
-import cn.seckill.enums.PayResultEnum;
+import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.util.AssertUtil;
 import cn.seckill.util.LogUtil;
@@ -40,34 +40,41 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     @Transactional
-    public PayResultEnum pay(PayRequest request) {
+    public TradeStatusEnum pay(PayRequest request) {
 
         LogUtil.info(logger, "收到支付请求,request={0}", request);
 
         AssertUtil.assertNotNull(request, "支付请求不能为空");
         request.validate();
 
-        //1.判断库存
+        //1.创建订单
+        Orders order = convert2Order(request);
+
+        TradeStatusEnum tradeStatus = null;
+
+        //2.判断库存
         Goods goods = null;
         try {
             goods = goodsMapper.selectForUpdate(request.getGoodsId());
-        } catch (Exception e) {
-            LogUtil.error(e, logger, "加锁查询商品失败");
-            return PayResultEnum.BUSY;
-        }
-        AssertUtil.assertNotNull(goods, "商品不存在");
-        AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + request.getGoodsId());
+            AssertUtil.assertNotNull(goods, "商品不存在");
+            AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + request.getGoodsId());
 
-        //2.创建订单
-        Orders order = convert2Order(request);
-        int ret = ordersMapper.insert(order);
+            tradeStatus = TradeStatusEnum.SUCCESS;
+        } catch (Exception e) {
+            LogUtil.error(logger, "加锁查询商品失败");
+            tradeStatus = TradeStatusEnum.BUSY;
+        }
 
         //3.修改商品数量
-        updateGoods(goods);
+        updateGoods(goods, tradeStatus);
+
+        //4.写入订单
+        order.setTradeStatus(tradeStatus.getCode());
+        ordersMapper.insert(order);
 
         LogUtil.info(logger, "支付完成");
 
-        return ret > 0 ? PayResultEnum.SUCCESS : PayResultEnum.FAILED;
+        return tradeStatus;
     }
 
     private Orders convert2Order(PayRequest request) {
@@ -83,13 +90,17 @@ public class TradeServiceImpl implements TradeService {
         return order;
     }
 
-    private void updateGoods(Goods goods) {
-        Long tempQuantity = goods.getQuantity();
-        goods.setQuantity(--tempQuantity);
-        goods.setGmtUpdate(new Date());
-        goodsMapper.updateByPrimaryKey(goods);
+    private void updateGoods(Goods goods, TradeStatusEnum tradeStatus) {
+        if (tradeStatus == TradeStatusEnum.SUCCESS) {
+            Long tempQuantity = goods.getQuantity();
+            goods.setQuantity(--tempQuantity);
+            goods.setGmtUpdate(new Date());
+            goodsMapper.updateByPrimaryKey(goods);
 
-        LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
+            LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
+        } else {
+            return;
+        }
     }
 
 }
