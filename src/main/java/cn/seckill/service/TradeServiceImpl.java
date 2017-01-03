@@ -5,6 +5,8 @@
 package cn.seckill.service;
 
 import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Resource;
 
@@ -32,6 +34,9 @@ public class TradeServiceImpl implements TradeService {
 
     private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
 
+    /** 定义公平的可重入锁 */
+    private Lock                lock   = new ReentrantLock(Boolean.TRUE);
+
     @Resource
     private OrdersMapper        ordersMapper;
 
@@ -42,6 +47,9 @@ public class TradeServiceImpl implements TradeService {
     @Transactional
     public TradeStatusEnum pay(PayRequest request) {
 
+        boolean ret = false;
+        TradeStatusEnum tradeStatus = null;
+
         LogUtil.info(logger, "收到支付请求,request={0}", request);
 
         AssertUtil.assertNotNull(request, "支付请求不能为空");
@@ -50,25 +58,20 @@ public class TradeServiceImpl implements TradeService {
         //1.创建订单
         Orders order = convert2Order(request);
 
-        TradeStatusEnum tradeStatus = null;
-
         //2.判断库存
-        Goods goods = null;
+        lock.lock();
         try {
-            goods = goodsMapper.selectForUpdate(request.getGoodsId());
-            AssertUtil.assertNotNull(goods, "商品不存在");
-            AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + request.getGoodsId());
-
-            tradeStatus = TradeStatusEnum.SUCCESS;
+            //3.修改商品数量
+            ret = updateGoods(request.getGoodsId());
         } catch (Exception e) {
-            LogUtil.error(logger, "加锁查询商品失败");
-            tradeStatus = TradeStatusEnum.BUSY;
+            LogUtil.error(e, logger, "修改商品库存失败");
+            ret = false;
+        } finally {
+            lock.unlock();
         }
 
-        //3.修改商品数量
-        updateGoods(goods, tradeStatus);
-
         //4.写入订单
+        tradeStatus = ret ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
         order.setTradeStatus(tradeStatus.getCode());
         ordersMapper.insert(order);
 
@@ -90,17 +93,26 @@ public class TradeServiceImpl implements TradeService {
         return order;
     }
 
-    private void updateGoods(Goods goods, TradeStatusEnum tradeStatus) {
-        if (tradeStatus == TradeStatusEnum.SUCCESS) {
+    private boolean updateGoods(Long goodsId) {
+
+        boolean ret = false;
+
+        try {
+            Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
+            AssertUtil.assertNotNull(goods, "商品不存在");
+            AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + goodsId);
+
             Long tempQuantity = goods.getQuantity();
             goods.setQuantity(--tempQuantity);
             goods.setGmtUpdate(new Date());
             goodsMapper.updateByPrimaryKey(goods);
 
             LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
-        } else {
-            return;
+            ret = true;
+        } catch (Exception e) {
+            throw new RuntimeException("更新商品库存失败,goodsId=" + goodsId, e);
         }
+        return ret;
     }
 
 }
