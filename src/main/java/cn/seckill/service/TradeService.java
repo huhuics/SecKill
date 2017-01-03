@@ -4,6 +4,7 @@
  */
 package cn.seckill.service;
 
+import cn.seckill.enums.PayResultEnum;
 import cn.seckill.request.PayRequest;
 
 /**
@@ -16,8 +17,8 @@ public interface TradeService {
     /**
      * 支付接口
      * @param request  支付请求参数
-     * @return         支付成功返回true,否则返回false
+     * @return         支付结果枚举
      */
-    boolean pay(PayRequest request);
+    PayResultEnum pay(PayRequest request);
 
 }

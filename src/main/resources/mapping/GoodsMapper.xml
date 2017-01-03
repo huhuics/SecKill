@@ -114,4 +114,14 @@
       GMT_CREATE = #{gmtCreate,jdbcType=TIMESTAMP}
     where ID = #{id,jdbcType=DECIMAL}
   </update>
+  
+  <!-- 加锁查询 -->
+  <select id="selectForUpdate" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from GOODS
+    where ID = #{id,jdbcType=DECIMAL}
+    for update nowait
+  </select>
+  
 </mapper>

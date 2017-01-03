@@ -17,6 +17,7 @@ import cn.seckill.dao.GoodsMapper;
 import cn.seckill.dao.OrdersMapper;
 import cn.seckill.domain.Goods;
 import cn.seckill.domain.Orders;
+import cn.seckill.enums.PayResultEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.util.AssertUtil;
 import cn.seckill.util.LogUtil;
@@ -39,7 +40,7 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     @Transactional
-    public boolean pay(PayRequest request) {
+    public PayResultEnum pay(PayRequest request) {
 
         LogUtil.info(logger, "收到支付请求,request={0}", request);
 
@@ -47,7 +48,13 @@ public class TradeServiceImpl implements TradeService {
         request.validate();
 
         //1.判断库存
-        Goods goods = goodsMapper.selectByPrimaryKey(request.getGoodsId());
+        Goods goods = null;
+        try {
+            goods = goodsMapper.selectForUpdate(request.getGoodsId());
+        } catch (Exception e) {
+            LogUtil.error(e, logger, "加锁查询商品失败");
+            return PayResultEnum.BUSY;
+        }
         AssertUtil.assertNotNull(goods, "商品不存在");
         AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + request.getGoodsId());
 
@@ -60,7 +67,7 @@ public class TradeServiceImpl implements TradeService {
 
         LogUtil.info(logger, "支付完成");
 
-        return ret > 0;
+        return ret > 0 ? PayResultEnum.SUCCESS : PayResultEnum.FAILED;
     }
 
     private Orders convert2Order(PayRequest request) {

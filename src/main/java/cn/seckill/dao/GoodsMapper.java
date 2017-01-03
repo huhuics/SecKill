@@ -14,4 +14,11 @@ public interface GoodsMapper {
     int updateByPrimaryKeySelective(Goods record);
 
     int updateByPrimaryKey(Goods record);
+
+    /**
+     * 加锁查询
+     * @param id 主键
+     * @return   Goods
+     */
+    Goods selectForUpdate(Long id);
 }
