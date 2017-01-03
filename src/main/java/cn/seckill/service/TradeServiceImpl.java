@@ -55,7 +55,7 @@ public class TradeServiceImpl implements TradeService {
         Orders order = convert2Order(request);
         int ret = ordersMapper.insert(order);
 
-        //修改商品数量
+        //3.修改商品数量
         updateGoods(goods);
 
         LogUtil.info(logger, "支付完成");
