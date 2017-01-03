@@ -4,6 +4,8 @@
  */
 package cn.seckill.service;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -49,13 +51,8 @@ public class TradeServiceImpl implements TradeService {
         //写入订单表
         int ret = ordersMapper.insert(order);
 
-        //商品数量减少
-        Goods goods = goodsMapper.selectByPrimaryKey(request.getGoodsId());
-        AssertUtil.assertNotNull(goods, "商品不存在");
-        Long tempQuantity = goods.getQuantity();
-        goods.setQuantity(--tempQuantity);
-
-        LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
+        //修改商品数量
+        updateGoods(request.getGoodsId());
 
         LogUtil.info(logger, "支付完成");
 
@@ -69,8 +66,21 @@ public class TradeServiceImpl implements TradeService {
         order.setGoodsName(request.getGoodsName());
         order.setBuyerId(request.getBuyerId());
         order.setTotalAmount(request.getTotalAmount());
+        order.setGmtUpdate(new Date());
+        order.setGmtCreate(new Date());
 
         return order;
+    }
+
+    private void updateGoods(Long goodsId) {
+        Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
+        AssertUtil.assertNotNull(goods, "商品不存在");
+        Long tempQuantity = goods.getQuantity();
+        goods.setQuantity(--tempQuantity);
+        goods.setGmtUpdate(new Date());
+        goodsMapper.updateByPrimaryKey(goods);
+
+        LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
     }
 
 }
