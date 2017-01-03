@@ -46,13 +46,17 @@ public class TradeServiceImpl implements TradeService {
         AssertUtil.assertNotNull(request, "支付请求不能为空");
         request.validate();
 
-        Orders order = convert2Order(request);
+        //1.判断库存
+        Goods goods = goodsMapper.selectByPrimaryKey(request.getGoodsId());
+        AssertUtil.assertNotNull(goods, "商品不存在");
+        AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + request.getGoodsId());
 
-        //写入订单表
+        //2.创建订单
+        Orders order = convert2Order(request);
         int ret = ordersMapper.insert(order);
 
         //修改商品数量
-        updateGoods(request.getGoodsId());
+        updateGoods(goods);
 
         LogUtil.info(logger, "支付完成");
 
@@ -72,9 +76,7 @@ public class TradeServiceImpl implements TradeService {
         return order;
     }
 
-    private void updateGoods(Long goodsId) {
-        Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
-        AssertUtil.assertNotNull(goods, "商品不存在");
+    private void updateGoods(Goods goods) {
         Long tempQuantity = goods.getQuantity();
         goods.setQuantity(--tempQuantity);
         goods.setGmtUpdate(new Date());
