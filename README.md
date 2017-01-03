@@ -37,38 +37,46 @@ comment on column GOODS.GMT_CREATE is
   ```
   + 订单表
   ```SQL
-  drop table "ORDERS" cascade constraints;
+  drop table ORDERS cascade constraints;
 /*==============================================================*/
-/* Table: "ORDERS"                                               */
+/* Table: ORDERS                                                */
 /*==============================================================*/
-create table "ORDERS" 
+create table ORDERS 
 (
    ID                   NUMBER               not null,
    ORDER_NO             VARCHAR2(64)         not null,
    GOODS_ID             NUMBER               not null,
    GOODS_NAME           VARCHAR2(128)        not null,
    BUYER_ID             VARCHAR2(64)         not null,
+   TRADE_STATUS         VARCHAR2(32)         not null,
    TOTAL_AMOUNT         NUMBER(18)           not null,
    GMT_UPDATE           DATE                 not null,
    GMT_CREATE           DATE,
    constraint PK_ORDERS primary key (ID)
 );
-comment on table "ORDERS" is
+comment on table ORDERS is
 '订单表';
-comment on column "ORDERS".ID is
+comment on column ORDERS.ID is
 '主键，自增';
-comment on column "ORDERS".ORDER_NO is
+comment on column ORDERS.ORDER_NO is
 '订单编号';
-comment on column "ORDERS".GOODS_ID is
+comment on column ORDERS.GOODS_ID is
 '外键，商品编号';
-comment on column "ORDERS".GOODS_NAME is
+comment on column ORDERS.GOODS_NAME is
 '商品名称';
-comment on column "ORDERS".BUYER_ID is
+comment on column ORDERS.BUYER_ID is
 '购买人ID';
-comment on column "ORDERS".TOTAL_AMOUNT is
+comment on column ORDERS.TRADE_STATUS is
+'交易状态。success：交易成功；failed：交易失败；busy：系统繁忙';
+comment on column ORDERS.TOTAL_AMOUNT is
 '商品总价';
-comment on column "ORDERS".GMT_UPDATE is
+comment on column ORDERS.GMT_UPDATE is
 '修改时间';
-comment on column "ORDERS".GMT_CREATE is
+comment on column ORDERS.GMT_CREATE is
 '创建时间';
   ```
+ 2. 压测结果
+ 
+|序号|并发数|TPS|平均响应时间(ms)|备注|
+|----|-----|---|---------------|---|
+|1|20|1008.7|17|数据库悲观锁|
