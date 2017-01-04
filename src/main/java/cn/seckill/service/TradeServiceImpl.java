@@ -13,7 +13,9 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import cn.seckill.dao.GoodsMapper;
 import cn.seckill.dao.OrdersMapper;
@@ -35,7 +37,7 @@ public class TradeServiceImpl implements TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
 
     /** 定义公平的可重入锁 */
-    private Lock                lock   = new ReentrantLock(Boolean.TRUE);
+    private static Lock         lock   = new ReentrantLock(Boolean.TRUE);
 
     @Resource
     private OrdersMapper        ordersMapper;
@@ -43,12 +45,11 @@ public class TradeServiceImpl implements TradeService {
     @Resource
     private GoodsMapper         goodsMapper;
 
-    @Override
-    @Transactional
-    public TradeStatusEnum pay(PayRequest request) {
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
-        boolean ret = false;
-        TradeStatusEnum tradeStatus = null;
+    @Override
+    public TradeStatusEnum pay(final PayRequest request) {
 
         LogUtil.info(logger, "收到支付请求,request={0}", request);
 
@@ -56,28 +57,31 @@ public class TradeServiceImpl implements TradeService {
         request.validate();
 
         //1.创建订单
-        Orders order = convert2Order(request);
+        final Orders order = convert2Order(request);
 
-        //2.判断库存
-        lock.lock();
-        try {
-            //3.修改商品数量
-            ret = updateGoods(request.getGoodsId());
-        } catch (Exception e) {
-            LogUtil.error(e, logger, "修改商品库存失败");
-            ret = false;
-        } finally {
-            lock.unlock();
-        }
+        boolean transRet = transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
-        //4.写入订单
-        tradeStatus = ret ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
-        order.setTradeStatus(tradeStatus.getCode());
-        ordersMapper.insert(order);
+            @Override
+            public Boolean doInTransaction(TransactionStatus status) {
+
+                boolean ret = false;
+                TradeStatusEnum tradeStatus = null;
+
+                //2.修改商品数量
+                ret = updateGoods(request.getGoodsId());
+
+                //3.写入订单
+                tradeStatus = ret ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
+                order.setTradeStatus(tradeStatus.getCode());
+                ordersMapper.insert(order);
+                return ret;
+
+            }
+        });
 
         LogUtil.info(logger, "支付完成");
 
-        return tradeStatus;
+        return transRet ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
     }
 
     private Orders convert2Order(PayRequest request) {
@@ -96,7 +100,7 @@ public class TradeServiceImpl implements TradeService {
     private boolean updateGoods(Long goodsId) {
 
         boolean ret = false;
-
+        lock.tryLock();
         try {
             Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
             AssertUtil.assertNotNull(goods, "商品不存在");
@@ -110,7 +114,10 @@ public class TradeServiceImpl implements TradeService {
             LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
             ret = true;
         } catch (Exception e) {
-            throw new RuntimeException("更新商品库存失败,goodsId=" + goodsId, e);
+            LogUtil.error(e, logger, "更新商品库存失败,goodsId={0}", goodsId);
+            ret = false;
+        } finally {
+            lock.unlock();
         }
         return ret;
     }

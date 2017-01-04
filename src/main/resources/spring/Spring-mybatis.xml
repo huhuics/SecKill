@@ -33,5 +33,11 @@
 	
 	<!-- 使用声明式事务 -->
 	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	<!-- 编程式事务 -->
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="txManager"></property>
+		<property name="isolationLevel" value="8"></property>
+	</bean>
 
 </beans>

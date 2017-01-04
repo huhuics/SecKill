@@ -32,7 +32,7 @@ public class TradeServiceTest extends BaseTest {
 
         PayRequest request = new PayRequest();
         request.setOrderNo(UUIDUtil.geneId());
-        request.setGoodsId(1L);
+        request.setGoodsId(2L);
         request.setGoodsName("春运火车票");
         request.setBuyerId("106699001");
         request.setTotalAmount(new Money(166.6));
