@@ -2,7 +2,7 @@
  * 深圳金融电子结算中心
  * Copyright (c) 1995-2017 All Rights Reserved.
  */
-package cn.seckill.service;
+package cn.seckill.service.impl;
 
 import java.util.Date;
 import java.util.concurrent.locks.Lock;
@@ -23,6 +23,7 @@ import cn.seckill.domain.Goods;
 import cn.seckill.domain.Orders;
 import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
+import cn.seckill.service.TradeService;
 import cn.seckill.util.AssertUtil;
 import cn.seckill.util.LogUtil;
 
@@ -100,7 +101,7 @@ public class TradeServiceImpl implements TradeService {
     private boolean updateGoods(Long goodsId) {
 
         boolean ret = false;
-        lock.tryLock();
+        lock.lock();
         try {
             Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
             AssertUtil.assertNotNull(goods, "商品不存在");
