@@ -21,6 +21,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
+import cn.seckill.service.AsynTradeService;
 import cn.seckill.service.TradeService;
 import cn.seckill.util.LogUtil;
 import cn.seckill.util.Money;
@@ -39,6 +40,9 @@ public class TradeController {
 
     @Resource
     private TradeService        tradeService;
+
+    @Resource
+    private AsynTradeService    asynTradeService;
 
     @ResponseBody
     @RequestMapping(value = "/pay", method = RequestMethod.POST)
@@ -62,6 +66,32 @@ public class TradeController {
         } catch (Exception e) {
             LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
             result = TradeStatusEnum.FAILED.getCode();
+        }
+
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "asynPay", method = RequestMethod.POST)
+    public String asynPay(WebRequest webRequest) {
+        LogUtil.info(logger, "收到异步支付请求");
+
+        String result = TradeStatusEnum.FAILED.getCode();
+
+        Map<String, String> paraMap = null;
+
+        try {
+            paraMap = getParameters(webRequest);
+
+            LogUtil.info(logger, "异步支付报文原始参数paraMap={0}", paraMap);
+
+            PayRequest payRequest = buildPayRequest(paraMap);
+            Boolean payRet = asynTradeService.pay(payRequest);
+
+            result = payRet.toString();
+        } catch (Exception e) {
+            LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
+            result = Boolean.FALSE.toString();
         }
 
         return result;
