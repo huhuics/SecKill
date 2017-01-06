@@ -84,4 +84,11 @@ comment on column ORDERS.GMT_CREATE is
 |3|10|282.3|32|5107|可重入锁+ISOLATION.SERIALIZABLE|
 |4|10|991.8|9|5200|可重入锁(tryLock)+ISOLATION.SERIALIZABLE|
 |5|10|578.2|15|7402|ISOLATION.SERIALIZABLE|
+|6|10|994.6|9|8219|线程池 + select for update nowait|
+|7|10|653.4|13|8040|线程池 + ISOLATION.SERIALIZABLE|
+
+ 3. 几点结论
+  - 为避免多线程环境下，数据不一致，尽量使用select for update nowait
+  - 尽量使用编程式事务，细粒度控制事务
+  - 如果事务隔离级别设置成了ISOLATION.SERIALIZABLE，则不需要select for update或者synchronized加锁，但这种事务隔离级别会导致程序效率较低
 

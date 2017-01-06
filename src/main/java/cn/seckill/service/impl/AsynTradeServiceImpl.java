@@ -15,7 +15,9 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import cn.seckill.dao.GoodsMapper;
 import cn.seckill.dao.OrdersMapper;
@@ -44,11 +46,13 @@ public class AsynTradeServiceImpl implements AsynTradeService {
     @Resource
     private GoodsMapper         goodsMapper;
 
+    @Resource
+    private TransactionTemplate transactionTemplate;
+
     /** 线程池 */
     private ExecutorService     threadPool = Executors.newCachedThreadPool();
 
     @Override
-    @Transactional
     public Boolean pay(final PayRequest request) throws Exception {
 
         LogUtil.info(logger, "收到支付请求,request={0}", request);
@@ -64,17 +68,27 @@ public class AsynTradeServiceImpl implements AsynTradeService {
             @Override
             public Boolean call() throws Exception {
                 boolean ret = false;
-                TradeStatusEnum tradeStatus = null;
 
-                //2.修改商品数量
-                ret = updateGoods(request.getGoodsId());
+                ret = transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
-                //3.写入订单
-                tradeStatus = ret ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
-                order.setTradeStatus(tradeStatus.getCode());
-                ordersMapper.insert(order);
+                    @Override
+                    public Boolean doInTransaction(TransactionStatus status) {
+                        TradeStatusEnum tradeStatus = null;
+                        //2.修改商品数量
+                        boolean updateRet = updateGoods(request.getGoodsId());
+
+                        //3.写入订单
+                        tradeStatus = updateRet ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
+                        order.setTradeStatus(tradeStatus.getCode());
+                        ordersMapper.insert(order);
+
+                        return updateRet;
+                    }
+                });
+
                 return ret;
             }
+
         });
 
         return future.get();
@@ -84,7 +98,7 @@ public class AsynTradeServiceImpl implements AsynTradeService {
 
         boolean ret = false;
         try {
-            Goods goods = goodsMapper.selectForUpdate(goodsId);
+            Goods goods = goodsMapper.selectByPrimaryKey(goodsId);
             AssertUtil.assertNotNull(goods, "商品不存在");
             AssertUtil.assertTrue(goods.getQuantity() > 0, "商品库存不足! goodsId=" + goodsId);
 
@@ -96,7 +110,7 @@ public class AsynTradeServiceImpl implements AsynTradeService {
             LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
             ret = true;
         } catch (Exception e) {
-            LogUtil.error(e, logger, "更新商品库存失败,goodsId={0}", goodsId);
+            LogUtil.error(logger, "更新商品库存失败,goodsId={0}", goodsId);
             ret = false;
         }
         return ret;
