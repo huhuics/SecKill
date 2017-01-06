@@ -95,7 +95,6 @@ public class AsynTradeServiceImpl implements AsynTradeService {
 
             LogUtil.info(logger, "商品id={0}当前库存={1}", goods.getId(), goods.getQuantity());
             ret = true;
-            Thread.sleep(10000);
         } catch (Exception e) {
             LogUtil.error(e, logger, "更新商品库存失败,goodsId={0}", goodsId);
             ret = false;
