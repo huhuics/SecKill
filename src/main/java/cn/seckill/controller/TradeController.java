@@ -22,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.service.AsynTradeService;
+import cn.seckill.service.TradeMQService;
 import cn.seckill.service.TradeService;
 import cn.seckill.util.LogUtil;
 import cn.seckill.util.Money;
@@ -43,6 +44,9 @@ public class TradeController {
 
     @Resource
     private AsynTradeService    asynTradeService;
+
+    @Resource
+    private TradeMQService      tradeMQService;
 
     @ResponseBody
     @RequestMapping(value = "/pay", method = RequestMethod.POST)
@@ -87,6 +91,32 @@ public class TradeController {
 
             PayRequest payRequest = buildPayRequest(paraMap);
             Boolean payRet = asynTradeService.pay(payRequest);
+
+            result = payRet.toString();
+        } catch (Exception e) {
+            LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
+            result = Boolean.FALSE.toString();
+        }
+
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "mqPay", method = RequestMethod.POST)
+    public String mqPay(WebRequest webRequest) {
+        LogUtil.info(logger, "收到MQ支付请求");
+
+        String result = TradeStatusEnum.FAILED.getCode();
+
+        Map<String, String> paraMap = null;
+
+        try {
+            paraMap = getParameters(webRequest);
+
+            LogUtil.info(logger, "MQ支付报文原始参数paraMap={0}", paraMap);
+
+            PayRequest payRequest = buildPayRequest(paraMap);
+            Boolean payRet = tradeMQService.pay(payRequest);
 
             result = payRet.toString();
         } catch (Exception e) {
