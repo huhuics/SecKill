@@ -7,10 +7,13 @@ package cn.seckill.service.impl;
 import java.util.Date;
 
 import javax.annotation.Resource;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -29,8 +32,7 @@ import cn.seckill.util.LogUtil;
  * @author HuHui
  * @version $Id: TradeMQListenerImpl.java, v 0.1 2017年1月7日 下午3:57:33 HuHui Exp $
  */
-@Service("tradeMQListener")
-public class TradeMQListenerImpl implements TradeMQListener {
+public class TradeMQListenerImpl implements TradeMQListener, MessageListener {
 
     private static final Logger logger = LoggerFactory.getLogger(TradeMQListenerImpl.class);
 
@@ -44,9 +46,25 @@ public class TradeMQListenerImpl implements TradeMQListener {
     private TransactionTemplate transactionTemplate;
 
     @Override
+    public void onMessage(Message message) {
+        LogUtil.info(logger, "收到消息");
+
+        if (message instanceof ObjectMessage) {
+            ObjectMessage objMessage = (ObjectMessage) message;
+            Orders order = null;
+            try {
+                order = (Orders) objMessage.getObject();
+            } catch (JMSException e) {
+                throw new RuntimeException("消息接收失败", e);
+            }
+            handle(order);
+        }
+    }
+
+    @Override
     public void handle(final Orders order) {
 
-        LogUtil.info(logger, "收到消息,order={0}", order);
+        LogUtil.info(logger, "收到订单处理请求,order={0}", order);
 
         transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
@@ -67,7 +85,7 @@ public class TradeMQListenerImpl implements TradeMQListener {
             }
         });
 
-        LogUtil.info(logger, "消息处理完成");
+        LogUtil.info(logger, "订单处理完成");
 
     }
 

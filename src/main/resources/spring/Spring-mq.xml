@@ -9,30 +9,42 @@
 				        http://www.springframework.org/schema/jms
 				        http://www.springframework.org/schema/jms/spring-jms-4.0.xsd">
 
-	<!-- 创建连接工厂 -->
-	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+	<!-- 创建ActiveMQ连接工厂 -->
+	<bean id="amqSenderConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
 		<property name="brokerURL" value="${mq.brokerURL}" />
 	</bean>
-
-	<!-- 创建queue -->
-	<bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="seckill.queue" />
+	<bean id="amqListenerConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${mq.brokerURL}" />
+	</bean>
+	
+	<!-- 创建Spring连接工厂 -->
+	<bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<constructor-arg ref="amqSenderConnectionFactory" />
+		<property name="sessionCacheSize" value="1000" />
 	</bean>
 
-	<!-- 创建topic -->
-	<bean id="topic" class="org.apache.activemq.command.ActiveMQTopic">
-		<constructor-arg value="seckill.topic" />
+	<!-- 定义队列 -->
+	<bean id="defaultDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<description>队列模式</description>
+		<constructor-arg index="0" value="${mq.queue.name}" />
 	</bean>
 
-	<!-- 转配jms模板 -->
+	<!-- 配置jms模板 -->
 	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
 		<property name="connectionFactory" ref="connectionFactory" />
-		<property name="defaultDestinationName" value="seckill.queue" />
+		<property name="defaultDestination" ref="defaultDestination" />
+		<property name="pubSubDomain" value="false" />
 	</bean>
 
-	<!-- 配置异步方式接收信息 -->
-	<jms:listener-container connection-factory="connectionFactory">
-		<jms:listener destination="seckill.queue" ref="tradeMQListener" method="handle" />
-	</jms:listener-container>
+	<!-- 消息监听bean,异步接收 -->
+	<bean id="tradeMQListener" class="cn.seckill.service.impl.TradeMQListenerImpl" />
+	
+	<!-- 配置Spring监听容器 -->
+	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="amqListenerConnectionFactory" />
+		<property name="destination" ref="defaultDestination" />
+		<property name="messageListener" ref="tradeMQListener" />
+		<property name="concurrentConsumers" value="${mq.queue.consumers}" />
+	</bean>
 
 </beans>
