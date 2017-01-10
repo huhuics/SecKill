@@ -93,4 +93,5 @@ comment on column ORDERS.GMT_CREATE is
    - 为避免多线程环境下，数据不一致，尽量使用select for update nowait
    - 尽量使用编程式事务，细粒度控制事务
    - 如果事务隔离级别设置成了ISOLATION.SERIALIZABLE，则不需要select for update或者synchronized加锁，但这种事务隔离级别会导致程序效率较低
+   - 锁有两个层面，一个是java中的对象锁，用于线程同步；另一个层面是数据库的锁；如果是分布式的系统，显然只能利用数据库端的锁来控制并发
 
