@@ -82,19 +82,19 @@ comment on column ORDERS.GMT_CREATE is
  
 |序号|并发数|TPS|平均响应时间(ms)|成功笔数|备注|
 |----|-----|---|----------------|--------|---|
-|1|10|885|10|7418|数据库悲观锁(select for update nowait)|
-|2|10|285.7|32|8863|synchronized+ISOLATION.SERIALIZABLE|
-|3|10|282.3|32|5107|可重入锁+ISOLATION.SERIALIZABLE|
-|4|10|991.8|9|5200|可重入锁(tryLock)+ISOLATION.SERIALIZABLE|
-|5|10|578.2|15|7402|ISOLATION.SERIALIZABLE|
-|6|10|994.6|9|8219|线程池 + select for update nowait|
-|7|10|653.4|13|8040|线程池 + ISOLATION.SERIALIZABLE|
-|8|10|204.5|44|13000(异步)|ActiveMQ未优化|
-|9|10|268.9|33|16405(异步)|ActiveMQ,多线程发送,单线程处理.有少量慢查询|
-|10|10|825|11|8903|乐观锁|
+|1|10|221|41|13260|数据库悲观锁(select for update)|
+|2|10|885|10|7418|数据库悲观锁(select for update nowait)|
+|3|10|285.7|32|8863|synchronized+ISOLATION.SERIALIZABLE|
+|4|10|282.3|32|5107|可重入锁+ISOLATION.SERIALIZABLE|
+|5|10|991.8|9|5200|可重入锁(tryLock)+ISOLATION.SERIALIZABLE|
+|6|10|578.2|15|7402|ISOLATION.SERIALIZABLE|
+|7|10|994.6|9|8219|线程池 + select for update nowait|
+|8|10|653.4|13|8040|线程池 + ISOLATION.SERIALIZABLE|
+|9|10|204.5|44|13000(异步)|ActiveMQ未优化|
+|10|10|268.9|33|16405(异步)|ActiveMQ,多线程发送,单线程处理.有少量慢查询|
+|11|10|825|11|8903|乐观锁|
 
  + 几点结论
-   - 为避免多线程环境下，数据不一致，尽量使用select for update nowait
    - 尽量使用编程式事务，细粒度控制事务
    - 如果事务隔离级别设置成了ISOLATION.SERIALIZABLE，则不需要select for update或者synchronized加锁，但这种事务隔离级别会导致程序效率较低
    - 锁有两个层面，一个是java中的对象锁，用于线程同步；另一个层面是数据库的锁；如果是分布式的系统，显然只能利用数据库端的锁来控制并发
