@@ -7,11 +7,12 @@
     <result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
     <result column="TOTAL_AMOUNT" jdbcType="DECIMAL" property="totalAmount" />
     <result column="QUANTITY" jdbcType="DECIMAL" property="quantity" />
+    <result column="VERSION" jdbcType="DECIMAL" property="version" />
     <result column="GMT_UPDATE" jdbcType="TIMESTAMP" property="gmtUpdate" />
     <result column="GMT_CREATE" jdbcType="TIMESTAMP" property="gmtCreate" />
   </resultMap>
   <sql id="Base_Column_List">
-    ID, NAME, DESCRIPTION, TOTAL_AMOUNT, QUANTITY, GMT_UPDATE, GMT_CREATE
+    ID, NAME, DESCRIPTION, TOTAL_AMOUNT, QUANTITY, VERSION, GMT_UPDATE, GMT_CREATE
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -25,11 +26,11 @@
   </delete>
   <insert id="insert" parameterType="cn.seckill.domain.Goods">
     insert into GOODS (ID, NAME, DESCRIPTION, 
-      TOTAL_AMOUNT, QUANTITY, GMT_UPDATE, 
-      GMT_CREATE)
+      TOTAL_AMOUNT, QUANTITY, VERSION, 
+      GMT_UPDATE, GMT_CREATE)
     values (#{id,jdbcType=DECIMAL}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{totalAmount,jdbcType=DECIMAL}, #{quantity,jdbcType=DECIMAL}, #{gmtUpdate,jdbcType=TIMESTAMP}, 
-      #{gmtCreate,jdbcType=TIMESTAMP})
+      #{totalAmount,jdbcType=DECIMAL}, #{quantity,jdbcType=DECIMAL}, #{version,jdbcType=DECIMAL}, 
+      #{gmtUpdate,jdbcType=TIMESTAMP}, #{gmtCreate,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="cn.seckill.domain.Goods">
     insert into GOODS
@@ -48,6 +49,9 @@
       </if>
       <if test="quantity != null">
         QUANTITY,
+      </if>
+      <if test="version != null">
+        VERSION,
       </if>
       <if test="gmtUpdate != null">
         GMT_UPDATE,
@@ -72,6 +76,9 @@
       <if test="quantity != null">
         #{quantity,jdbcType=DECIMAL},
       </if>
+      <if test="version != null">
+        #{version,jdbcType=DECIMAL},
+      </if>
       <if test="gmtUpdate != null">
         #{gmtUpdate,jdbcType=TIMESTAMP},
       </if>
@@ -95,6 +102,9 @@
       <if test="quantity != null">
         QUANTITY = #{quantity,jdbcType=DECIMAL},
       </if>
+      <if test="version != null">
+        VERSION = #{version,jdbcType=DECIMAL},
+      </if>
       <if test="gmtUpdate != null">
         GMT_UPDATE = #{gmtUpdate,jdbcType=TIMESTAMP},
       </if>
@@ -110,12 +120,13 @@
       DESCRIPTION = #{description,jdbcType=VARCHAR},
       TOTAL_AMOUNT = #{totalAmount,jdbcType=DECIMAL},
       QUANTITY = #{quantity,jdbcType=DECIMAL},
+      VERSION = #{version,jdbcType=DECIMAL},
       GMT_UPDATE = #{gmtUpdate,jdbcType=TIMESTAMP},
       GMT_CREATE = #{gmtCreate,jdbcType=TIMESTAMP}
     where ID = #{id,jdbcType=DECIMAL}
   </update>
   
-  <!-- 加锁查询 -->
+  <!-- 加锁查询(悲观锁) -->
   <select id="selectForUpdate" parameterType="java.lang.Long" resultMap="BaseResultMap">
   	select 
     <include refid="Base_Column_List" />
@@ -123,5 +134,18 @@
     where ID = #{id,jdbcType=DECIMAL}
     for update nowait
   </select>
+  
+  <!-- 根据版本号修改(乐观锁) -->
+  <update id="updateWithCAS" parameterType="cn.seckill.domain.Goods">
+    update GOODS
+    set NAME = #{name,jdbcType=VARCHAR},
+      DESCRIPTION = #{description,jdbcType=VARCHAR},
+      TOTAL_AMOUNT = #{totalAmount,jdbcType=DECIMAL},
+      QUANTITY = #{quantity,jdbcType=DECIMAL},
+      VERSION = VERSION+1,
+      GMT_UPDATE = #{gmtUpdate,jdbcType=TIMESTAMP},
+      GMT_CREATE = #{gmtCreate,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=DECIMAL} and VERSION=#{version,jdbcType=DECIMAL}
+  </update>
   
 </mapper>

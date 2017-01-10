@@ -24,6 +24,7 @@ import cn.seckill.request.PayRequest;
 import cn.seckill.service.AsynTradeService;
 import cn.seckill.service.TradeMQService;
 import cn.seckill.service.TradeService;
+import cn.seckill.service.TradeServiceCAS;
 import cn.seckill.util.LogUtil;
 import cn.seckill.util.Money;
 import cn.seckill.util.UUIDUtil;
@@ -47,6 +48,9 @@ public class TradeController {
 
     @Resource
     private TradeMQService      tradeMQService;
+
+    @Resource
+    private TradeServiceCAS     tradeServiceCAS;
 
     @ResponseBody
     @RequestMapping(value = "/pay", method = RequestMethod.POST)
@@ -119,6 +123,32 @@ public class TradeController {
             Boolean payRet = tradeMQService.pay(payRequest);
 
             result = payRet.toString();
+        } catch (Exception e) {
+            LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
+            result = Boolean.FALSE.toString();
+        }
+
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "casPay", method = RequestMethod.POST)
+    public String casPay(WebRequest webRequest) {
+        LogUtil.info(logger, "收到CAS支付请求");
+
+        String result = TradeStatusEnum.FAILED.getCode();
+
+        Map<String, String> paraMap = null;
+
+        try {
+            paraMap = getParameters(webRequest);
+
+            LogUtil.info(logger, "CAS支付报文原始参数paraMap={0}", paraMap);
+
+            PayRequest payRequest = buildPayRequest(paraMap);
+            TradeStatusEnum payRet = tradeServiceCAS.pay(payRequest);
+
+            result = payRet.getCode();
         } catch (Exception e) {
             LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
             result = Boolean.FALSE.toString();

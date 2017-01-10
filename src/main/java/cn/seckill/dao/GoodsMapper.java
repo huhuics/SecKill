@@ -21,4 +21,11 @@ public interface GoodsMapper {
      * @return   Goods
      */
     Goods selectForUpdate(Long id);
+
+    /**
+     * 修改(乐观锁)
+     * @param goods
+     * @return
+     */
+    int updateWithCAS(Goods goods);
 }

@@ -7,7 +7,7 @@ import cn.seckill.util.Money;
 public class Goods extends BaseDomain {
 
     /**  */
-    private static final long serialVersionUID = 3552480290249514944L;
+    private static final long serialVersionUID = 3039020425964263725L;
 
     private Long              id;
 
@@ -18,6 +18,8 @@ public class Goods extends BaseDomain {
     private Money             totalAmount;
 
     private Long              quantity;
+
+    private Long              version;
 
     private Date              gmtUpdate;
 
@@ -61,6 +63,14 @@ public class Goods extends BaseDomain {
 
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Date getGmtUpdate() {

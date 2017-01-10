@@ -34,6 +34,7 @@ public class GoodsServiceTest extends BaseTest {
         goods.setDescription("2017年春运火车票");
         goods.setTotalAmount(new Money(166.6));
         goods.setQuantity(10000L);
+        goods.setVersion(1L);
         goods.setGmtCreate(new Date());
         goods.setGmtUpdate(new Date());
 
@@ -41,4 +42,11 @@ public class GoodsServiceTest extends BaseTest {
 
     }
 
+    @Test
+    public void testUpdateByCAS() {
+        Goods goods = goodsMapper.selectByPrimaryKey(5L);
+        goods.setQuantity(2000L);
+        int ret = goodsMapper.updateWithCAS(goods);
+        Assert.assertTrue(ret > 0);
+    }
 }
