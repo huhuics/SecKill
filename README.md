@@ -88,6 +88,7 @@ comment on column ORDERS.GMT_CREATE is
 |7|10|653.4|13|8040|线程池 + ISOLATION.SERIALIZABLE|
 |8|10|204.5|44|13000(异步)|ActiveMQ未优化|
 |9|10|268.9|33|16405(异步)|ActiveMQ,多线程发送,单线程处理.有少量慢查询|
+|10|10|825|11|8903|乐观锁|
 
  + 几点结论
    - 为避免多线程环境下，数据不一致，尽量使用select for update nowait

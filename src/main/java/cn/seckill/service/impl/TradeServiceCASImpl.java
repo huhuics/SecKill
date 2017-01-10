@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -29,6 +30,7 @@ import cn.seckill.util.LogUtil;
  * @author HuHui
  * @version $Id: TradeServiceCASImpl.java, v 0.1 2017年1月10日 下午7:49:00 HuHui Exp $
  */
+@Service
 public class TradeServiceCASImpl implements TradeServiceCAS {
 
     private static final Logger logger = LoggerFactory.getLogger(TradeServiceCASImpl.class);
