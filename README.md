@@ -3,7 +3,7 @@
  1. 数据库设计
   + 商品表
   ```SQL
-  drop table GOODS cascade constraints;
+ drop table GOODS cascade constraints;
 /*==============================================================*/
 /* Table: GOODS                                                 */
 /*==============================================================*/
@@ -14,6 +14,7 @@ create table GOODS
    DESCRIPTION          VARCHAR2(512),
    TOTAL_AMOUNT         NUMBER(18)           not null,
    QUANTITY             NUMBER               not null,
+   VERSION              NUMBER(18)           default 1,
    GMT_UPDATE           DATE                 not null,
    GMT_CREATE           DATE                 not null,
    constraint PK_GOODS primary key (ID)
@@ -30,6 +31,8 @@ comment on column GOODS.TOTAL_AMOUNT is
 '商品价格';
 comment on column GOODS.QUANTITY is
 '库存数量';
+comment on column GOODS.VERSION is
+'版本号,用于实现乐观锁';
 comment on column GOODS.GMT_UPDATE is
 '修改时间';
 comment on column GOODS.GMT_CREATE is
