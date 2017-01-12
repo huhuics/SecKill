@@ -10,7 +10,7 @@
 
 	<properties>
 		<!-- Spring版本 -->
-		<spring.version>4.0.2.RELEASE</spring.version>
+		<spring.version>4.3.0.RELEASE</spring.version>
 		<oracle.connector.version>11.2.0.3.0</oracle.connector.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -82,6 +82,12 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>1.7.4.RELEASE</version>
+		</dependency>
 		<!-- end Spring -->
 
 		<!-- mybatis核心 -->
@@ -144,9 +150,15 @@
 		<!-- tools end -->
 
 		<dependency>
-			<groupId>com.cwbase</groupId>
-			<artifactId>logback-redis-appender</artifactId>
-			<version>1.1.5</version>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.6.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.7.4</version>
 		</dependency>
 
 		<!-- Apache ActiveMQ -->
@@ -159,7 +171,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 
