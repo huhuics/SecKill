@@ -121,7 +121,7 @@
     <include refid="Base_Column_List" />
     from GOODS
     where ID = #{id,jdbcType=DECIMAL}
-    for update nowait
+    for update
   </select>
   
 </mapper>

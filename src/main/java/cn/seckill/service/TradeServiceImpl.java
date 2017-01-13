@@ -61,7 +61,7 @@ public class TradeServiceImpl implements TradeService {
 
             tradeStatus = TradeStatusEnum.SUCCESS;
         } catch (Exception e) {
-            LogUtil.error(logger, "加锁查询商品失败");
+            LogUtil.error(e, logger, "加锁查询商品失败");
             tradeStatus = TradeStatusEnum.BUSY;
         }
 
