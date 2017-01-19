@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<substitutionProperty name="pro.name" value="seckill" />
-	<substitutionProperty name="log.base" value="logs/seckill" />
+	<substitutionProperty name="log.base" value="/home/logs/seckill" />
 	<substitutionProperty name="max.size" value="100MB" />
 	<substitutionProperty name="max.history" value="2" />
 	<jmxConfigurator />
