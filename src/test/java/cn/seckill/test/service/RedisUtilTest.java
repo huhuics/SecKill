@@ -4,13 +4,11 @@
  */
 package cn.seckill.test.service;
 
-import java.util.Date;
-
 import org.junit.Test;
 
 import cn.seckill.domain.Goods;
+import cn.seckill.service.impl.TradeCacheServiceImpl;
 import cn.seckill.test.base.BaseTest;
-import cn.seckill.util.DateUtil;
 import cn.seckill.util.Money;
 import cn.seckill.util.RedisUtil;
 
@@ -30,7 +28,7 @@ public class RedisUtilTest extends BaseTest {
         goods.setTotalAmount(new Money(166.6));
         goods.setQuantity(10000L);
 
-        RedisUtil.set(DateUtil.getTimeString(new Date()), goods);
+        RedisUtil.set(TradeCacheServiceImpl.key, goods);
     }
 
 }

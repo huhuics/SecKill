@@ -22,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import cn.seckill.enums.TradeStatusEnum;
 import cn.seckill.request.PayRequest;
 import cn.seckill.service.AsynTradeService;
+import cn.seckill.service.TradeCacheService;
 import cn.seckill.service.TradeMQService;
 import cn.seckill.service.TradeService;
 import cn.seckill.service.TradeServiceCAS;
@@ -51,6 +52,9 @@ public class TradeController {
 
     @Resource
     private TradeServiceCAS     tradeServiceCAS;
+
+    @Resource
+    private TradeCacheService   tradeCacheService;
 
     @ResponseBody
     @RequestMapping(value = "/pay", method = RequestMethod.POST)
@@ -147,6 +151,32 @@ public class TradeController {
 
             PayRequest payRequest = buildPayRequest(paraMap);
             TradeStatusEnum payRet = tradeServiceCAS.pay(payRequest);
+
+            result = payRet.getCode();
+        } catch (Exception e) {
+            LogUtil.error(e, logger, "支付失败,paraMap={0}", paraMap);
+            result = Boolean.FALSE.toString();
+        }
+
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "cachePay", method = RequestMethod.POST)
+    public String cachePay(WebRequest webRequest) {
+        LogUtil.info(logger, "收到CACHE支付请求");
+
+        String result = TradeStatusEnum.FAILED.getCode();
+
+        Map<String, String> paraMap = null;
+
+        try {
+            paraMap = getParameters(webRequest);
+
+            LogUtil.info(logger, "CACHE支付报文原始参数paraMap={0}", paraMap);
+
+            PayRequest payRequest = buildPayRequest(paraMap);
+            TradeStatusEnum payRet = tradeCacheService.pay(payRequest);
 
             result = payRet.getCode();
         } catch (Exception e) {
