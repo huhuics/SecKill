@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -28,6 +29,7 @@ import cn.seckill.util.RedisUtil;
  * @author HuHui
  * @version $Id: TradeCacheServiceImpl.java, v 0.1 2017年1月19日 下午2:52:38 HuHui Exp $
  */
+@Service
 public class TradeCacheServiceImpl implements TradeCacheService {
 
     private static final Logger logger = LoggerFactory.getLogger(TradeCacheServiceImpl.class);
@@ -50,16 +52,15 @@ public class TradeCacheServiceImpl implements TradeCacheService {
         //1.创建订单
         final Orders order = CommonUtil.convert2Order(request);
 
+        //2.修改商品数量
+        final boolean ret = updateGoods(request.getGoodsId());
+
         boolean transRet = transactionTemplate.execute(new TransactionCallback<Boolean>() {
 
             @Override
             public Boolean doInTransaction(TransactionStatus status) {
 
-                boolean ret = false;
                 TradeStatusEnum tradeStatus = null;
-
-                //2.修改商品数量
-                ret = updateGoods(request.getGoodsId());
 
                 //3.写入订单
                 tradeStatus = ret ? TradeStatusEnum.SUCCESS : TradeStatusEnum.FAILED;
