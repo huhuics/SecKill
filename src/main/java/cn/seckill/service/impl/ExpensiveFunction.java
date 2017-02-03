@@ -26,7 +26,7 @@ public class ExpensiveFunction implements Computable<String, BigInteger> {
 
         LogUtil.info(logger, "arg={0}", arg);
 
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         //在经过长时间的计算后
         return new BigInteger(arg);

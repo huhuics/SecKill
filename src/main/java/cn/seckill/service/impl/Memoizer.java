@@ -10,6 +10,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.seckill.service.Computable;
 
 /**
@@ -19,7 +22,9 @@ import cn.seckill.service.Computable;
  */
 public class Memoizer<A, V> implements Computable<A, V> {
 
-    private final ConcurrentMap<A, Future<V>> cache = new ConcurrentHashMap<A, Future<V>>();
+    private static final Logger               logger = LoggerFactory.getLogger(Memoizer.class);
+
+    private final ConcurrentMap<A, Future<V>> cache  = new ConcurrentHashMap<A, Future<V>>();
 
     private final Computable<A, V>            c;
 
@@ -56,5 +61,4 @@ public class Memoizer<A, V> implements Computable<A, V> {
             }
         }
     }
-
 }
