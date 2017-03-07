@@ -10,9 +10,21 @@
 		<property name="logSlowSql" value="true" />
 		<property name="mergeSql" value="true" />
 	</bean>
-	
-	<!--oracle数据库  -->
-	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" init-method="init" lazy-init="true">
+
+	<bean id="dataSource" class="cn.seckill.dy.ds.DynamicDataSource">
+		<!-- 默认使用dataSourceA的数据源 -->
+		<property name="defaultTargetDataSource" ref="master"></property>
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="master" key="master"></entry>
+				<entry value-ref="slave" key="slave"></entry>
+			</map>
+		</property>
+	</bean>
+
+	<!--oracle数据库(Master) -->
+	<bean id="master" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close" init-method="init" lazy-init="true">
 		<description>数据库连接</description>
 		<property name="driverClassName" value="${driver}" />
 		<property name="url" value="${url}" />
@@ -37,12 +49,48 @@
 		<property name="testOnBorrow" value="false" />
 		<property name="testOnReturn" value="false" />
 		<property name="validationQuery" value="SELECT 'x' FROM DUAL" />
-		<!-- 定时输出统计信息 (5分钟)-->
+		<!-- 定时输出统计信息 (5分钟) -->
 		<property name="timeBetweenLogStatsMillis" value="300000" />
 		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
 		<property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
 		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
 		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
 	</bean>
-	
+
+	<!--oracle数据库(Slave) -->
+	<bean id="slave" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close" init-method="init" lazy-init="true">
+		<description>数据库连接</description>
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url2}" />
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+		<!-- 初始化连接大小 -->
+		<property name="initialSize" value="${initialSize}" />
+		<!-- 连接池最大数量 -->
+		<property name="maxActive" value="${maxActive}" />
+		<!-- 连接池最小空闲 -->
+		<property name="minIdle" value="${minIdle}" />
+		<!-- 获取连接最大等待时间 -->
+		<property name="maxWait" value="${maxWait}" />
+		<property name="proxyFilters">
+			<list>
+				<ref bean="statFilter" />
+			</list>
+		</property>
+		<property name="filters" value="${druid.filters}" />
+		<property name="connectionProperties" value="password=${password}" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		<property name="validationQuery" value="SELECT 'x' FROM DUAL" />
+		<!-- 定时输出统计信息 (5分钟) -->
+		<property name="timeBetweenLogStatsMillis" value="300000" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+	</bean>
+
+
 </beans>
