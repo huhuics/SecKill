@@ -30,7 +30,7 @@ public class SlaveDBAspect {
         LogUtil.info(logger, "开始切换到Slave库");
         try {
             DataSourceHolder.setSlave();
-            return pjp.proceed();
+            return pjp.proceed(); //continue on the intercepted method
         } finally {
             DataSourceHolder.clearDataSource();
             LogUtil.info(logger, "结束切换到Slave库");
